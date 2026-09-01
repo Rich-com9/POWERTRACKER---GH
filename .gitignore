@@ -1,0 +1,22 @@
+# Secrets and local environment
+.env
+*.env
+firebase-service-account*.json
+.vscode/
+
+# User-uploaded media
+media/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local databases
+*.sqlite3
+
+# Flutter generated files
+powertracker_app/.dart_tool/
+powertracker_app/build/
+powertracker_app/.flutter-plugins-dependencies

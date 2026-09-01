@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1002628605689",
+    "project_id": "powertracker-gh",
+    "storage_bucket": "powertracker-gh.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1002628605689:android:3d0a311d71263baefca428",
+        "android_client_info": {
+          "package_name": "com.example.powertracker_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLBv-ingE0B-K1p136SYLK-AyWN8Bq9HY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
