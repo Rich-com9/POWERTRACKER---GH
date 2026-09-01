@@ -81,7 +81,7 @@ $env:DEFAULT_FROM_EMAIL="your-verified-brevo-sender@example.com"
 .\venv\Scripts\python.exe manage.py runserver 0.0.0.0:8000
 ```
 
-The sender address must be verified in Brevo. Never commit SMTP keys. The example configuration is in [.env.example](.env.example), while [config/settings.py](config/settings.py) reads the values.
+The sender address must be verified in Brevo. Never commit SMTP keys. Create a local [.env](.env) file with your own values, and [config/settings.py](config/settings.py) will read from it automatically.
 
 ## Authentication Flow
 
@@ -226,7 +226,7 @@ Render's local filesystem is not permanent. Configure persistent object storage 
 
 ## Security Notes
 
-- Keep `.env`, SMTP keys, Firebase service-account files, signing keys, and production secrets out of version control.
+- Keep [.env](.env), SMTP keys, Firebase service-account files, signing keys, and production secrets out of version control.
 - Rotate any credential that has been exposed.
 - Do not use the development LAN API address in a released mobile app.
 - Do not use Django's console email backend in production.
