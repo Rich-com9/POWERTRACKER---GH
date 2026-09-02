@@ -23,8 +23,8 @@ if not DEBUG and SECRET_KEY.startswith('django-insecure-'):
     )
 
 default_allowed_hosts = (
-    '127.0.0.1,localhost,192.168.70.160,10.0.2.2,0.0.0.0,testserver'
-    if DEBUG else ''
+    '127.0.0.1,localhost,192.168.70.160,10.0.2.2,0.0.0.0,testserver,powertracker-gh-e3o5.onrender.com'
+    if DEBUG else 'powertracker-gh-e3o5.onrender.com'
 )
 ALLOWED_HOSTS = (
     ['*']

@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String _defaultBaseUrl = 'http://192.168.70.160:8000/api';
+  static const String _defaultBaseUrl = 'https://powertracker-gh-e3o5.onrender.com/api';
   static const bool _isRelease = bool.fromEnvironment('dart.vm.product');
   static String _resolvedBaseUrl = '';
 
