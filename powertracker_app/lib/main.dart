@@ -14,13 +14,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await ApiConstants.initialize();
 
   if (ApiConstants.baseUrl.isEmpty ||
       (bool.fromEnvironment('dart.vm.product') &&
           !ApiConstants.baseUrl.startsWith('https://'))) {
     throw StateError(
-      'Release builds require --dart-define=API_BASE_URL=https://your-api.example.com/api',
+      'Release builds require --dart-define=API_HOST=https://your-api.example.com',
     );
   }
 
@@ -37,9 +36,7 @@ class PowerTrackerApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'PowerTracker GH',
-      theme: ThemeData(
-        useMaterial3: true,
-      ),
+      theme: ThemeData(useMaterial3: true),
       home: const SessionGate(),
     );
   }
@@ -78,14 +75,16 @@ class _SessionGateState extends State<SessionGate> {
       return;
     } catch (_) {
       if (refreshToken != null && refreshToken.isNotEmpty) {
-        final refreshedToken = await _apiService.refreshAccessToken(refreshToken);
-        if (refreshedToken != null) {
-          try {
+        try {
+          final refreshedToken = await _apiService.refreshAccessToken(
+            refreshToken,
+          );
+          if (refreshedToken != null) {
             final profile = await _apiService.getProfile(refreshedToken);
             _show(HomeScreen(email: profile['email']?.toString() ?? ''));
             return;
-          } catch (_) {}
-        }
+          }
+        } catch (_) {}
       }
     }
 

@@ -33,64 +33,45 @@ db.sqlite3         Local development database
 - Flutter SDK
 - Dart SDK compatible with `powertracker_app/pubspec.yaml`
 - Android Studio or an Android device/emulator for Android development
-- A Brevo account for password-reset email delivery
 
 ## Backend Setup
 
 From the project root:
 
 ```powershell
-.\venv\Scripts\Activate.ps1
-.\venv\Scripts\python.exe manage.py migrate
-.\venv\Scripts\python.exe manage.py runserver 0.0.0.0:8000
+.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\python.exe manage.py migrate
+.\.venv\Scripts\python.exe manage.py runserver 0.0.0.0:8001
 ```
 
 The local API is available at:
 
 ```text
-http://127.0.0.1:8000/api/
+http://127.0.0.1:8001/api/
 ```
 
-For a phone on the same Wi-Fi network, use the computer's LAN address:
+For a phone on the same Wi-Fi network, add the computer's LAN IP to `ALLOWED_HOSTS` in `config/settings.py`. Find it with `ipconfig`. Start Django bound to all interfaces:
 
 ```text
-http://192.168.70.160:8000/api/
+http://192.168.124.68:8001/api/
 ```
+
+Allow Python through Windows Firewall on private networks if prompted. The phone and computer must be on the same Wi-Fi network.
 
 Django API documentation:
 
 ```text
-http://127.0.0.1:8000/api/docs/
+http://127.0.0.1:8001/api/docs/
 ```
-
-## Brevo Email Configuration
-
-The backend reads email configuration from environment variables. The project does not automatically load `.env` files, so set the variables in the same PowerShell window used to start Django.
-
-Use a Brevo SMTP key, not your Brevo account password:
-
-```powershell
-$env:EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
-$env:EMAIL_HOST="smtp-relay.brevo.com"
-$env:EMAIL_PORT="587"
-$env:EMAIL_USE_TLS="true"
-$env:EMAIL_HOST_USER="your-brevo-account-email"
-$env:EMAIL_HOST_PASSWORD="your-brevo-smtp-key"
-$env:DEFAULT_FROM_EMAIL="your-verified-brevo-sender@example.com"
-
-.\venv\Scripts\python.exe manage.py runserver 0.0.0.0:8000
-```
-
-The sender address must be verified in Brevo. Never commit SMTP keys. Create a local [.env](.env) file with your own values, and [config/settings.py](config/settings.py) will read from it automatically.
 
 ## Authentication Flow
 
-Users register with a username, email, phone number, and password. They can log in immediately after registration.
+Users register with a username, email, phone number, and password. Email verification is not required, and they can log in immediately after registration. Login sessions are stored securely on the device and refresh tokens remain valid for 90 days.
 
 If a user forgets their password:
 
 1. They enter their email address.
-2. The backend sends a six-digit reset code through Brevo.
+2. The backend sends a six-digit reset code through the configured email backend. During local development, Django prints the message in the backend terminal.
 3. The code expires after 10 minutes.
 4. The user enters the code and a new password.
 5. The code is invalidated after successful use.
@@ -107,13 +88,17 @@ flutter pub get
 flutter run
 ```
 
-The development API address is configured in [api_constants.dart](powertracker_app/lib/core/constants/api_constants.dart).
+Enter only the server origin (scheme, hostname/IP, and port) in `API_HOST`. The app adds `/api` and the endpoint paths automatically. Override the default if the address changes:
+
+```powershell
+flutter run --dart-define=API_HOST=http://YOUR_COMPUTER_IP:8001
+```
 
 For a deployed HTTPS API, override it when building:
 
 ```powershell
 flutter build apk --release `
-  --dart-define=API_BASE_URL=https://api.example.com/api
+  --dart-define=API_HOST=https://api.example.com
 ```
 
 Release builds require an HTTPS API URL.
@@ -160,7 +145,7 @@ The API is mounted under `/api/`.
 Run Django tests:
 
 ```powershell
-.\venv\Scripts\python.exe manage.py test
+.\.venv\Scripts\python.exe manage.py test
 ```
 
 Run Flutter analysis and tests:
@@ -179,54 +164,17 @@ Before publishing the app:
 - Use a real HTTPS API domain instead of the local LAN address.
 - Set `DJANGO_DEBUG=false`.
 - Set a strong `DJANGO_SECRET_KEY`.
-- Configure production `DJANGO_ALLOWED_HOSTS` and CORS origins.
+- Add the production domain to `ALLOWED_HOSTS` in [settings.py](config/settings.py) and configure CORS origins.
 - Use PostgreSQL or another production database instead of SQLite.
-- Configure Brevo SMTP with a verified sender.
+- Configure an email backend if password-reset email delivery is needed.
 - Configure static and uploaded media file storage.
 - Create and use an Android release keystore instead of the debug signing key.
 - Configure production Firebase settings for push notifications.
 - Apply all Django migrations.
 - Set up database backups, logging, and monitoring.
 
-## Deploying the API to Render
-
-The repository includes [render.yaml](render.yaml), which defines a Django web service and a Render Postgres database.
-
-1. Push the project to a GitHub repository.
-2. In Render, choose **New > Blueprint** and connect the repository.
-3. Render will read `render.yaml`, install dependencies, collect static files, run migrations, and start Gunicorn.
-4. In the Render service settings, set these secret or service-specific values:
-
-   ```text
-   EMAIL_HOST_USER
-   EMAIL_HOST_PASSWORD
-   DEFAULT_FROM_EMAIL
-   CORS_ALLOWED_ORIGINS
-   FIREBASE_CREDENTIALS_PATH
-   ```
-
-5. Verify the Brevo sender before testing password reset.
-6. Open the generated Render URL followed by `/api/docs/` to verify the API.
-
-The generated API address will look like:
-
-```text
-https://powertracker-api.onrender.com/api/
-```
-
-Use that URL when building Flutter for release:
-
-```powershell
-Set-Location powertracker_app
-flutter build apk --release `
-  --dart-define=API_BASE_URL=https://powertracker-api.onrender.com/api
-```
-
-Render's local filesystem is not permanent. Configure persistent object storage for uploaded outage images before production use.
-
 ## Security Notes
 
-- Keep [.env](.env), SMTP keys, Firebase service-account files, signing keys, and production secrets out of version control.
+- Keep [.env](.env), SMTP credentials, Firebase service-account files, signing keys, and production secrets out of version control.
 - Rotate any credential that has been exposed.
 - Do not use the development LAN API address in a released mobile app.
-- Do not use Django's console email backend in production.

@@ -16,8 +16,6 @@ from .serializers import (
     ChangePasswordSerializer,
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
-    EmailVerificationConfirmSerializer,
-    EmailVerificationRequestSerializer,
     UserSerializer,
 )
 from .models import EmailVerificationCode, SavedArea
@@ -145,56 +143,6 @@ class PasswordResetConfirmView(APIView):
         return Response({'message': 'Password reset successfully.'})
 
 
-class EmailVerificationConfirmView(APIView):
-    serializer_class = EmailVerificationConfirmSerializer
-    permission_classes = [AllowAny]
-
-    @extend_schema(request=EmailVerificationConfirmSerializer)
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = User.objects.filter(
-            email__iexact=serializer.validated_data['email'],
-            is_active=True,
-        ).first()
-        code = EmailVerificationCode.objects.filter(
-            user=user,
-            purpose=EmailVerificationCode.EMAIL_VERIFICATION,
-        ).first() if user else None
-        if not _valid_email_code(code, serializer.validated_data['code']):
-            if code:
-                code.attempts += 1
-                code.save(update_fields=['attempts'])
-            raise serializers.ValidationError({
-                'code': 'Invalid or expired verification code.'
-            })
-        user.is_verified = True
-        user.email_verified_at = timezone.now()
-        user.save(update_fields=['is_verified', 'email_verified_at'])
-        code.delete()
-        return Response({'message': 'Email verified successfully.'})
-
-
-class EmailVerificationRequestView(APIView):
-    serializer_class = EmailVerificationRequestSerializer
-    permission_classes = [AllowAny]
-
-    @extend_schema(request=EmailVerificationRequestSerializer)
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = User.objects.filter(
-            email__iexact=serializer.validated_data['email'],
-            is_active=True,
-            is_verified=False,
-        ).first()
-        if user:
-            _send_email_code(user, EmailVerificationCode.EMAIL_VERIFICATION)
-        return Response({
-            'message': 'If the account exists, a verification code has been sent.'
-        })
-
-
 def _send_email_code(user, purpose):
     existing = EmailVerificationCode.objects.filter(
         user=user,
@@ -211,13 +159,8 @@ def _send_email_code(user, purpose):
         code_hash=make_password(code),
         expires_at=timezone.now() + timedelta(minutes=10),
     )
-    subject = (
-        'Verify your PowerTracker email'
-        if purpose == EmailVerificationCode.EMAIL_VERIFICATION
-        else 'Reset your PowerTracker password'
-    )
     send_mail(
-        subject,
+        'Reset your PowerTracker password',
         f'Your PowerTracker GH code is {code}. It expires in 10 minutes.',
         None,
         [user.email],

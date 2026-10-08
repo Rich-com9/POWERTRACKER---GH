@@ -6,8 +6,6 @@ from .views import (
     ChangePasswordView,
     PasswordResetRequestView,
     PasswordResetConfirmView,
-    EmailVerificationConfirmView,
-    EmailVerificationRequestView,
     SavedAreaListCreateView,
     SavedAreaDeleteView,
     AdminDashboardView,
@@ -41,16 +39,6 @@ path(
     'password-reset/confirm/',
     PasswordResetConfirmView.as_view(),
     name='password-reset-confirm'),
-
-path(
-    'email-verification/confirm/',
-    EmailVerificationConfirmView.as_view(),
-    name='email-verification-confirm'),
-
-path(
-    'email-verification/request/',
-    EmailVerificationRequestView.as_view(),
-    name='email-verification-request'),
 
     path(
     'saved-areas/',

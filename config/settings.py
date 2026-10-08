@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from datetime import timedelta
 from dotenv import load_dotenv
 import dj_database_url
 
@@ -22,22 +23,14 @@ if not DEBUG and SECRET_KEY.startswith('django-insecure-'):
         'DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is false.'
     )
 
-default_allowed_hosts = (
-    '127.0.0.1,localhost,192.168.70.160,10.0.2.2,0.0.0.0,testserver,powertracker-gh-e3o5.onrender.com'
-    if DEBUG else 'powertracker-gh-e3o5.onrender.com'
-)
-ALLOWED_HOSTS = (
-    ['*']
-    if DEBUG and not os.environ.get('DJANGO_ALLOWED_HOSTS')
-    else [
-        host.strip()
-        for host in os.environ.get(
-            'DJANGO_ALLOWED_HOSTS',
-            default_allowed_hosts,
-        ).split(',')
-        if host.strip()
-    ]
-)
+# Add the server names and IP addresses clients use. Do not include scheme or port.
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '192.168.124.68',
+    '10.0.2.2',
+    'testserver',
+]
 
 
 INSTALLED_APPS = [
@@ -149,7 +142,7 @@ EMAIL_BACKEND = os.environ.get(
     'EMAIL_BACKEND',
     'django.core.mail.backends.console.EmailBackend',
 )
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp-relay.brevo.com')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() in {
     '1', 'true', 'yes'
@@ -160,10 +153,6 @@ DEFAULT_FROM_EMAIL = os.environ.get(
     'DEFAULT_FROM_EMAIL',
     EMAIL_HOST_USER or 'noreply@powertracker.local',
 )
-
-if not DEBUG and EMAIL_BACKEND == 'django.core.mail.backends.console.EmailBackend':
-    raise RuntimeError('EMAIL_BACKEND must be configured in production.')
-
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -179,6 +168,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),
 }
 
 CORS_ALLOWED_ORIGINS = [

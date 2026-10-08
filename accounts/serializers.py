@@ -106,15 +106,6 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         return attrs
 
 
-class EmailVerificationConfirmSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    code = serializers.CharField(min_length=6, max_length=6)
-
-
-class EmailVerificationRequestSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-
-
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:

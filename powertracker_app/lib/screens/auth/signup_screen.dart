@@ -21,7 +21,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final apiService = ApiService();
   bool isLoading = false;
-  final bool _accountCreated = false;
 
   Future<void> signUp() async {
     if (!_formKey.currentState!.validate()) return;
@@ -191,11 +190,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 onPressed: isLoading ? null : signUp,
                 child: isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                        _accountCreated
-                            ? 'Send verification code'
-                            : 'Create account',
-                      ),
+                  : const Text('Create account'),
               ),
               const SizedBox(height: 12),
               TextButton(

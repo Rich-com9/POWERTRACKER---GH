@@ -283,6 +283,7 @@ class AccountApiTests(TestCase):
 		)
 		self.assertEqual(response.status_code, 201)
 		user = User.objects.get(email='new@example.com')
+		self.assertFalse(user.is_verified)
 		response = self.client.post(
 			'/api/auth/token/',
 			{'email': user.email, 'password': 'StrongPass123!'},

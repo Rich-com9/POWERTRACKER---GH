@@ -36,9 +36,6 @@ class ApiService {
       ),
     );
 
-    debugPrint('LOGIN STATUS: ${response.statusCode}');
-    debugPrint('LOGIN RESPONSE: ${response.body}');
-
     final data = jsonDecode(response.body);
 
     if (response.statusCode >= 200 &&
@@ -59,7 +56,7 @@ class ApiService {
 
   Future<String?> refreshAccessToken(String refreshToken) async {
     final response = await _client.post(
-      Uri.parse('${ApiConstants.baseUrl}/auth/token/refresh/'),
+      Uri.parse(ApiConstants.refreshToken),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'refresh': refreshToken}),
     ).timeout(const Duration(seconds: 15));
@@ -222,41 +219,6 @@ class ApiService {
     throw Exception('Unable to reset password.');
   }
 
-  Future<void> confirmEmailVerification({
-    required String email,
-    required String code,
-  }) async {
-    final response = await _client.post(
-      Uri.parse(ApiConstants.emailVerificationConfirm),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'code': code}),
-    );
-    if (response.statusCode >= 200 && response.statusCode < 300) return;
-    final data = _decodeResponse(response.body);
-    if (data is Map && data['detail'] != null) {
-      throw Exception(data['detail']);
-    }
-    throw Exception('Unable to verify email address.');
-  }
-
-  Future<void> requestEmailVerification(String email) async {
-    final response = await _client.post(
-      Uri.parse(ApiConstants.emailVerificationRequest),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email}),
-    );
-    if (response.statusCode >= 200 && response.statusCode < 300) return;
-    throw Exception('Unable to resend verification code.');
-  }
-
-  dynamic _decodeResponse(String body) {
-    try {
-      return jsonDecode(body);
-    } on FormatException {
-      return null;
-    }
-  }
-
   // ============================================================
   // GET ALL OUTAGES
   // ============================================================
@@ -383,7 +345,8 @@ class ApiService {
     );
 
     final data = jsonDecode(response.body);
-    if (response.statusCode >= 200 && response.statusCode < 300) {
+    if (response.statusCode >= 200 &&
+        response.statusCode < 300) {
       if (data is List) return data;
       if (data is Map && data['results'] is List) {
         return List<dynamic>.from(data['results']);
