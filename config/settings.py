@@ -30,7 +30,11 @@ ALLOWED_HOSTS = [
     '192.168.124.68',
     '10.0.2.2',
     'testserver',
+    'powertracker-gh-3x4s.onrender.com',
 ]
+render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if render_hostname:
+    ALLOWED_HOSTS.append(render_hostname)
 
 
 INSTALLED_APPS = [
@@ -185,6 +189,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True

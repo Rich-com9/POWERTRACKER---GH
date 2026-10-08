@@ -88,7 +88,7 @@ flutter pub get
 flutter run
 ```
 
-Enter only the server origin (scheme, hostname/IP, and port) in `API_HOST`. The app adds `/api` and the endpoint paths automatically. Override the default if the address changes:
+The app defaults to the deployed API at `https://powertracker-gh-3x4s.onrender.com`. Enter only the server origin (scheme, hostname/IP, and port) in `API_HOST`; the app adds `/api` and endpoint paths automatically. To use the local server instead, override it:
 
 ```powershell
 flutter run --dart-define=API_HOST=http://YOUR_COMPUTER_IP:8001
@@ -98,7 +98,7 @@ For a deployed HTTPS API, override it when building:
 
 ```powershell
 flutter build apk --release `
-  --dart-define=API_HOST=https://api.example.com
+  --dart-define=API_HOST=https://powertracker-gh-3x4s.onrender.com
 ```
 
 Release builds require an HTTPS API URL.

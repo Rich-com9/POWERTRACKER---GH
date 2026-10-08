@@ -1,7 +1,7 @@
 class ApiConstants {
   static const String serverHost = String.fromEnvironment(
     'API_HOST',
-    defaultValue: 'http://192.168.124.68:8000',
+    defaultValue: 'https://powertracker-gh-3x4s.onrender.com',
   );
 
   static String get baseUrl =>
